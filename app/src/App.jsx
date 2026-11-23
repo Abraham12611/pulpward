@@ -1,148 +1,120 @@
-import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Base44Logo } from "@/components/Base44Logo";
-import { Plus, Trash2, CheckCircle2 } from "lucide-react";
+import React, { useEffect, useRef, useState } from 'react';
+import { Game, W, H } from '@/game/game.js';
+import { draw } from '@/game/render.js';
+import { sfx, unlock } from '@/game/audio.js';
 
-const Task = base44.entities.Task;
+const SAVE_KEY = 'pulpward.save.v1';
+const loadSave = () => {
+  try { return JSON.parse(localStorage.getItem(SAVE_KEY)) || {}; } catch { return {}; }
+};
+
+const KEYS = {
+  ArrowLeft: 'left', KeyA: 'left',
+  ArrowRight: 'right', KeyD: 'right',
+  ArrowUp: 'jump', KeyW: 'jump', Space: 'jump',
+  KeyJ: 'attack', KeyZ: 'attack',
+  KeyK: 'dash', ShiftLeft: 'dash', KeyX: 'dash',
+};
+
+function useLandscape() {
+  const [portrait, setPortrait] = useState(window.innerHeight > window.innerWidth);
+  useEffect(() => {
+    const f = () => setPortrait(window.innerHeight > window.innerWidth);
+    window.addEventListener('resize', f);
+    return () => window.removeEventListener('resize', f);
+  }, []);
+  return !portrait;
+}
 
 export default function App() {
-  const [tasks, setTasks] = useState([]);
-  const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchTasks = async () => {
-    const data = await Task.list();
-    setTasks(data);
-    setIsLoading(false);
-  };
+  const canvasRef = useRef(null);
+  const input = useRef({ left: false, right: false, jumpHeld: false, jumpPressed: false, attackPressed: false, dashPressed: false });
+  const landscape = useLandscape();
+  const touch = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
 
   useEffect(() => {
-    fetchTasks();
+    const canvas = canvasRef.current;
+    const c = canvas.getContext('2d');
+    const game = new Game(loadSave());
+    const inp = input.current;
+    let raf; let last = performance.now(); let tm = 0;
+
+    const fit = () => {
+      const s = Math.min(window.innerWidth / W, window.innerHeight / H);
+      const dpr = window.devicePixelRatio || 1;
+      canvas.style.width = `${W * s}px`; canvas.style.height = `${H * s}px`;
+      canvas.width = Math.round(W * s * dpr); canvas.height = Math.round(H * s * dpr);
+      c.setTransform(s * dpr, 0, 0, s * dpr, 0, 0);
+    };
+    fit();
+    window.addEventListener('resize', fit);
+
+    const press = (k, down) => {
+      if (k === 'left') inp.left = down;
+      else if (k === 'right') inp.right = down;
+      else if (k === 'jump') { if (down && !inp.jumpHeld) inp.jumpPressed = true; inp.jumpHeld = down; }
+      else if (k === 'attack' && down) inp.attackPressed = true;
+      else if (k === 'dash' && down) inp.dashPressed = true;
+    };
+    const kd = (e) => {
+      unlock();
+      if (e.code === 'Enter' && game.over) { game.reset(); return; }
+      const k = KEYS[e.code]; if (k) { e.preventDefault(); press(k, true); }
+    };
+    const ku = (e) => { const k = KEYS[e.code]; if (k) press(k, false); };
+    window.addEventListener('keydown', kd);
+    window.addEventListener('keyup', ku);
+    window.__pwPress = press;
+    window.__pwRestart = () => { if (game.over) game.reset(); };
+
+    const loop = (now) => {
+      const dt = (now - last) / 1000; last = now; tm += dt;
+      game.update(dt, inp);
+      inp.jumpPressed = inp.attackPressed = inp.dashPressed = false;
+      for (const e of game.events) {
+        sfx(e);
+        if (e.type === 'over') localStorage.setItem(SAVE_KEY, JSON.stringify({ best: e.best }));
+      }
+      game.events.length = 0;
+      draw(c, game, tm);
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', fit);
+      window.removeEventListener('keydown', kd);
+      window.removeEventListener('keyup', ku);
+    };
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!newTaskTitle.trim()) return;
-    await Task.create({ title: newTaskTitle.trim(), completed: false });
-    setNewTaskTitle("");
-    fetchTasks();
-  };
-
-  const toggleTask = async (id, completed) => {
-    await Task.update(id, { completed });
-    fetchTasks();
-  };
-
-  const deleteTask = async (id) => {
-    await Task.delete(id);
-    fetchTasks();
-  };
-
-  const clearCompleted = async () => {
-    await Promise.all(
-      tasks.filter((t) => t.completed).map((t) => Task.delete(t.id))
-    );
-    fetchTasks();
-  };
-
-  const completedCount = tasks.filter((t) => t.completed).length;
-  const totalCount = tasks.length;
+  const bind = (k) => ({
+    onPointerDown: (e) => { e.preventDefault(); unlock(); window.__pwRestart?.(); window.__pwPress(k, true); },
+    onPointerUp: () => window.__pwPress(k, false),
+    onPointerLeave: () => window.__pwPress(k, false),
+    onPointerCancel: () => window.__pwPress(k, false),
+  });
+  const btn = 'absolute flex items-center justify-center rounded-full border-2 border-[#4a2a2a] bg-[#fbf0dc]/70 font-extrabold text-[#4a2a2a] select-none touch-none';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50/30">
-      <div className="max-w-lg mx-auto px-6 py-16">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">
-            <span className="inline-flex items-center gap-2 align-middle">
-              <Base44Logo className="w-9 h-9" />
-              <span className="font-bold">Base44</span>
-              <span>Tasks</span>
-            </span>
-          </h1>
-          {totalCount > 0 && (
-            <p className="text-slate-500 mt-2 text-sm">
-              {completedCount} of {totalCount} completed
-            </p>
-          )}
+    <div className="fixed inset-0 flex items-center justify-center bg-[#2b2133] overflow-hidden touch-none">
+      <canvas ref={canvasRef} />
+      {touch && landscape && (
+        <>
+          <div {...bind('left')} className={`${btn} left-4 bottom-5 h-16 w-16 text-2xl`}>◀</div>
+          <div {...bind('right')} className={`${btn} left-24 bottom-5 h-16 w-16 text-2xl`}>▶</div>
+          <div {...bind('attack')} className={`${btn} right-6 bottom-6 h-20 w-20 text-sm`}>ATTACK</div>
+          <div {...bind('jump')} className={`${btn} right-28 bottom-4 h-14 w-14 text-xs`}>JUMP</div>
+          <div {...bind('dash')} className={`${btn} right-8 bottom-28 h-12 w-12 text-xs`}>DASH</div>
+        </>
+      )}
+      {!landscape && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#2b2133] text-center text-[#fff1d0]">
+          <div className="text-5xl">⟳</div>
+          <div className="text-xl font-extrabold">Rotate your phone</div>
+          <div className="text-sm opacity-80">Pulpward plays in landscape.</div>
         </div>
-
-        {/* Add Task Form */}
-        <form onSubmit={handleSubmit} className="mb-8">
-          <div className="flex gap-3">
-            <Input
-              type="text"
-              value={newTaskTitle}
-              onChange={(e) => setNewTaskTitle(e.target.value)}
-              placeholder="What needs to be done?"
-              className="flex-1 h-12 bg-white border-slate-200 rounded-xl shadow-sm"
-            />
-            <Button
-              type="submit"
-              disabled={!newTaskTitle.trim()}
-              className="h-12 px-5 rounded-xl bg-slate-900 hover:bg-slate-800 shadow-sm"
-            >
-              <Plus className="w-5 h-5" />
-            </Button>
-          </div>
-        </form>
-
-        {/* Task List */}
-        <div className="space-y-2">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="w-6 h-6 border-2 border-slate-200 border-t-orange-500 rounded-full animate-spin" />
-            </div>
-          ) : tasks.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-slate-400">No tasks yet. Add one above!</p>
-            </div>
-          ) : (
-            tasks.map((task) => (
-              <div
-                key={task.id}
-                className="group flex items-center gap-4 p-4 bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-200"
-              >
-                <Checkbox
-                  checked={task.completed}
-                  onCheckedChange={(checked) => toggleTask(task.id, checked)}
-                  className="w-5 h-5 rounded-md border-slate-300 data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
-                />
-                <span
-                  className={`flex-1 text-slate-700 transition-all ${
-                    task.completed ? "line-through text-slate-400" : ""
-                  }`}
-                >
-                  {task.title}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => deleteTask(task.id)}
-                  className="opacity-0 group-hover:opacity-100 h-8 w-8 text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Footer */}
-        {completedCount > 0 && (
-          <div className="mt-8 text-center">
-            <button
-              onClick={clearCompleted}
-              className="text-sm text-slate-400 hover:text-slate-600 transition-colors"
-            >
-              Clear completed
-            </button>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 }
