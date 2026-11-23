@@ -1,0 +1,139 @@
+{
+  "project": "Pulpward",
+  "created": "2026-11-21",
+  "document_count": 21,
+  "decision_matrix_total": [
+    92.8,
+    77.2,
+    66.8,
+    79.6
+  ],
+  "files": [
+    {
+      "name": "00-README.md",
+      "bytes": 7091,
+      "sha256": "f960eafb4abf76eaeacb92fcffb2c74699d07a8a114eec12834157e2b42a7db0",
+      "words": 852
+    },
+    {
+      "name": "01-REFERENCE-GAME-ANALYSIS.md",
+      "bytes": 7861,
+      "sha256": "a6231f36535619e4215b60d0101aa5bee73aaa6ea2f8f3d21095356542b80aad",
+      "words": 1113
+    },
+    {
+      "name": "02-GAME-CONCEPT-EXPLORATION.md",
+      "bytes": 5062,
+      "sha256": "fd82659e8e561ef5b47e973316cab85a892002f2d50715db103a36a1dccf44a3",
+      "words": 887
+    },
+    {
+      "name": "03-GAME-DESIGN-DOCUMENT.md",
+      "bytes": 7369,
+      "sha256": "9978828178179f222c25434044094bd2560a01b3896cdd3f839c0a2a94389c17",
+      "words": 1139
+    },
+    {
+      "name": "04-COMBAT-AND-SLASHING-SYSTEM.md",
+      "bytes": 6930,
+      "sha256": "20f4dbe7163acc611988569ddce57684d693e7ddfd10c547500d94576f296685",
+      "words": 923
+    },
+    {
+      "name": "05-ENEMIES-WAVES-AND-BOSSES.md",
+      "bytes": 5941,
+      "sha256": "3d7f6b7de9053ec200f0521dab5fbb98576f7af1510a964b4329276a44eac1b8",
+      "words": 920
+    },
+    {
+      "name": "06-CHARACTERS-WEAPONS-AND-UPGRADES.md",
+      "bytes": 4825,
+      "sha256": "6bb2025d830158910902cf55c48977b865c55fd0cb3270c13a0eb87ede4ad1c7",
+      "words": 772
+    },
+    {
+      "name": "07-ECONOMY-REWARDS-AND-BALANCING.md",
+      "bytes": 5296,
+      "sha256": "278990c4e60831e8dc3e2085118d134f602028e5d94acf9d51f2893bc266e2db",
+      "words": 768
+    },
+    {
+      "name": "08-LEVELS-WORLDS-AND-ENVIRONMENTS.md",
+      "bytes": 5390,
+      "sha256": "363382c4424711d3a8c092763a177eb35109fc524bbaabe4c64ca596d0fb06cd",
+      "words": 770
+    },
+    {
+      "name": "09-UI-UX-AND-VISUAL-DIRECTION.md",
+      "bytes": 6863,
+      "sha256": "900c5f52da0ff7cd12edc0034936bffdbdd9b207bdac55ca54be88af3a179c57",
+      "words": 1007
+    },
+    {
+      "name": "10-ANIMATION-VFX-AND-AUDIO.md",
+      "bytes": 5626,
+      "sha256": "9492ffdd9419959efe665d533c81659cfdb3ec4f6f450891dbc2698249807677",
+      "words": 858
+    },
+    {
+      "name": "11-SOCIAL-VIRALITY-AND-LEADERBOARDS.md",
+      "bytes": 5198,
+      "sha256": "4f29e5a46a428657a005e26894c244f8418c2f20cfaa73807e6ebd2f738ade50",
+      "words": 696
+    },
+    {
+      "name": "12-GUEST-SAVES-AND-CROSS-DEVICE-SYNC.md",
+      "bytes": 6184,
+      "sha256": "175b96bf0dff7433f6c791f7119036d1e1ff8751b73a5ab99bc48a8632ab2874",
+      "words": 805
+    },
+    {
+      "name": "13-BASE44-TECHNICAL-ARCHITECTURE.md",
+      "bytes": 7203,
+      "sha256": "8e3f6d4a1c0f10666c0110c7c0be693db265d56c84b8dae0db7374381a3fa55a",
+      "words": 957
+    },
+    {
+      "name": "14-DATABASE-AND-API-SPECIFICATION.md",
+      "bytes": 6765,
+      "sha256": "bb69000981151c08537b2fa9b8b2e1a7fc849241071d552d7757626f54aed088",
+      "words": 779
+    },
+    {
+      "name": "15-IMPLEMENTATION-ROADMAP.md",
+      "bytes": 5594,
+      "sha256": "95d9b2c45452fe5cf2d61400813d9505ad344334b9aef0fcb2a4aac170570ab8",
+      "words": 834
+    },
+    {
+      "name": "16-ENGINEERING-TASK-BACKLOG.md",
+      "bytes": 7173,
+      "sha256": "0f1c9aa508ccae69697a54aec30bf33aee81fcb8b931ebc4455ddc8111125462",
+      "words": 1149
+    },
+    {
+      "name": "17-QA-PERFORMANCE-AND-SECURITY.md",
+      "bytes": 6860,
+      "sha256": "b2758a38912354a46df96fd7903d0692f02a4f81ce9bfffb4b6858e1af8ab5a6",
+      "words": 1059
+    },
+    {
+      "name": "18-CONTEST-COMPLIANCE-AND-SUBMISSION.md",
+      "bytes": 7082,
+      "sha256": "4a196fd861f753ec0965b5bcd87a4674893bc551dcdc0b1954549450f2d46761",
+      "words": 991
+    },
+    {
+      "name": "19-BRANDING-AND-LAUNCH-STRATEGY.md",
+      "bytes": 5251,
+      "sha256": "3b37432c0c5234afd64a35e684237126eebf4d8b5a6eaab09b2bff97c7c22efd",
+      "words": 794
+    },
+    {
+      "name": "20-FUTURE-EXPANSION-IDEAS.md",
+      "bytes": 4433,
+      "sha256": "a45a189078b33c19ad7a3f9099347b8ebc72c7558bdb5b1bb48454cc902eee02",
+      "words": 638
+    }
+  ]
+}

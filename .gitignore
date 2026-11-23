@@ -1,0 +1,8 @@
+/mockups/out/
+/mockups/v2/
+/mockups/v3/
+/mockups/v4/
+/mockups/v5/
+node_modules/
+.env*
+
